@@ -885,6 +885,48 @@
             color: var(--dark);
         }
 
+        .featured-banner {
+            background: #FFF7ED;
+            border: 1px solid var(--gold);
+            color: var(--primary-dark);
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-weight: 700;
+            text-align: center;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .featured-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-family: 'Tajawal', sans-serif;
+            cursor: pointer;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--gold), var(--primary));
+            color: var(--white);
+            transition: opacity 0.3s;
+        }
+
+        .featured-btn:hover {
+            opacity: 0.9;
+        }
+
+        .featured-info-box {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .featured-info-box div {
+            margin-bottom: 6px;
+        }
+
         .contact-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -951,6 +993,7 @@
             gap: 12px;
             margin-bottom: 24px;
             border-bottom: 2px solid var(--border);
+            flex-wrap: wrap;
         }
 
         .tab {
@@ -1497,16 +1540,38 @@
     </div>
 </div>
 
+<!-- FEATURED AD MODAL -->
+<div id="featuredModal" class="modal">
+    <div class="modal-content" style="max-width: 420px;">
+        <button class="modal-close" onclick="closeFeaturedModal()">✕</button>
+        <h3 style="font-family:'Cairo',sans-serif;font-size:19px;margin-bottom:14px;color:var(--ink);">⭐ اجعل إعلانك مميزاً</h3>
+        <p style="font-size:14px;color:var(--text-muted);margin-bottom:16px;">إعلانك سيظهر بعلامة "مميز" فأعلى النتائج لمدة 7 أيام، مقابل 20 درهم فقط.</p>
+        <div class="featured-info-box">
+            <div><strong>الخطوات:</strong></div>
+            <div>1️⃣ حول 20 درهم عبر CashPlus لـ:</div>
+            <div style="padding-right:14px;">📱 الهاتف: <strong>0690174553</strong></div>
+            <div style="padding-right:14px;">👤 الاسم: <strong>Anas AMINE</strong></div>
+            <div>2️⃣ اكتب رقم العملية أو ملاحظة أسفله وأرسل الطلب</div>
+        </div>
+        <div class="form-group">
+            <label>رقم العملية / ملاحظة التأكيد</label>
+            <input type="text" id="featuredReceiptInput" placeholder="مثال: رقم العملية أو اسم المرسل">
+        </div>
+        <button class="submit-btn" id="submitFeaturedBtn" onclick="submitFeaturedRequest()">إرسال طلب التفعيل</button>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:10px;text-align:center;">سيتم تفعيل البادج خلال 24 ساعة من التحقق من الدفع.</p>
+    </div>
+</div>
+
 <!-- ADMIN LOGIN MODAL (secret access) -->
 <div id="adminLoginModal" class="modal">
     <div class="modal-content" style="max-width: 340px; text-align: center;">
         <button class="modal-close" onclick="closeAdminLogin()">✕</button>
         <div style="font-size: 32px; margin-bottom: 8px;">🔒</div>
         <h3 style="font-family: 'Cairo', sans-serif; font-size: 18px; margin-bottom: 18px; color: var(--ink);">دخول لوحة التحكم</h3>
-        <input type="password" id="adminPasswordInput" placeholder="أدخل الكود السري"
+        <input type="password" id="adminPasswordInput" placeholder="كلمة السر"
             style="width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; font-family: 'Tajawal', sans-serif; font-size: 14px; text-align: center;"
             onkeydown="if(event.key==='Enter'){checkAdminPassword();}">
-        <div id="adminLoginError" style="color: var(--danger); font-size: 13px; margin-bottom: 10px; display: none;">❌ الكود غير صحيح</div>
+        <div id="adminLoginError" style="color: var(--danger); font-size: 13px; margin-bottom: 10px; display: none;">❌ كلمة السر غير صحيحة</div>
         <button class="search-btn" style="width: 100%;" onclick="checkAdminPassword()">دخول</button>
     </div>
 </div>
@@ -1544,6 +1609,7 @@
             <div class="tabs">
                 <button class="tab active" onclick="switchAdminTab('listings')">الإعلانات المعلقة</button>
                 <button class="tab" onclick="switchAdminTab('approved')">الإعلانات المعتمدة</button>
+                <button class="tab" onclick="switchAdminTab('featured')">طلبات التمييز</button>
                 <button class="tab" onclick="switchAdminTab('users')">المستخدمون</button>
             </div>
 
@@ -1579,6 +1645,25 @@
                             </tr>
                         </thead>
                         <tbody id="approvedListingsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Featured Requests -->
+            <div id="featured" class="tab-content">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>السيارة</th>
+                                <th>الهاتف</th>
+                                <th>الملاحظة</th>
+                                <th>التاريخ</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="featuredRequestsTable"></tbody>
                     </table>
                 </div>
             </div>
@@ -1641,6 +1726,7 @@
 <!-- ==================== FIREBASE SDK (compat, no build tools needed) ==================== -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
 <script>
     // ==================== FIREBASE INIT ====================
@@ -1654,12 +1740,15 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const auth = firebase.auth();
     const carsCollection = db.collection('cars');
     const usersCollection = db.collection('users');
+    const featuredRequestsCollection = db.collection('featuredRequests');
 
     // ==================== DATA STORAGE (now backed by Firestore, not localStorage) ====================
     let cars = [];
     let users = [];
+    let featuredRequests = [];
     let currentCar = null;
     let uploadedImages = [];
     let currentLanguage = 'ar';
@@ -1668,6 +1757,7 @@
     function init() {
         listenToCars();
         listenToUsers();
+        listenToFeaturedRequests();
     }
 
     // كيبقى مستمع دائم مربوط بـ Firestore: أي تغيير (إضافة/حذف/قبول) كيتحدث تلقائياً
@@ -1692,14 +1782,34 @@
         });
     }
 
+    function listenToFeaturedRequests() {
+        featuredRequestsCollection.onSnapshot((snapshot) => {
+            featuredRequests = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+            if (document.getElementById('admin-section').style.display === 'block') {
+                updateAdminDashboard();
+            }
+        }, (error) => {
+            console.error('Firestore error (featuredRequests):', error);
+        });
+    }
+
     function loadCars() {
         displayCars(cars);
+    }
+
+    // ==================== FEATURED HELPER ====================
+    function isFeaturedActive(car) {
+        return !!(car.featured && car.featuredUntil && new Date(car.featuredUntil) > new Date());
     }
 
     // ==================== CAR MANAGEMENT ====================
     function displayCars(carsToDisplay) {
         const carsList = document.getElementById('carsList');
-        const approvedCars = carsToDisplay.filter(c => c.approved);
+        const approvedCars = carsToDisplay.filter(c => c.approved).slice().sort((a, b) => {
+            const aFeatured = isFeaturedActive(a) ? 1 : 0;
+            const bFeatured = isFeaturedActive(b) ? 1 : 0;
+            return bFeatured - aFeatured;
+        });
         const countLabel = document.getElementById('carsCount');
         if (countLabel) countLabel.textContent = approvedCars.length ? `${approvedCars.length} سيارة متاحة` : '';
         if (approvedCars.length === 0) {
@@ -1711,7 +1821,7 @@
             <div class="car-card" onclick="viewCarDetail('${car.id}')">
                 <div class="car-image">
                     <img src="${(car.images && car.images[0]) || 'https://placehold.co/400x300?text=سيارة'}" alt="${car.brand} ${car.model}" onerror="this.onerror=null;this.src='https://placehold.co/400x300?text=صورة+غير+متوفرة'">
-                    <div class="car-badge">⭐ مميز</div>
+                    ${isFeaturedActive(car) ? '<div class="car-badge">⭐ مميز</div>' : ''}
                 </div>
                 <div class="car-info">
                     <div class="car-title">${car.brand} ${car.model} ${car.year}</div>
@@ -1737,6 +1847,10 @@
         if (!currentCar) return;
 
         const mainImages = (currentCar.images && currentCar.images.length) ? currentCar.images : ['https://placehold.co/500x400?text=سيارة'];
+
+        const featuredSectionHTML = isFeaturedActive(currentCar)
+            ? `<div class="featured-banner">⭐ هذا الإعلان مميز حتى ${new Date(currentCar.featuredUntil).toLocaleDateString('ar-MA')}</div>`
+            : `<button class="featured-btn" onclick="openFeaturedModal()">⭐ اجعل إعلاني مميزاً - 20 درهم لمدة 7 أيام</button>`;
         
         const detailHTML = `
             <div class="car-detail-gallery">
@@ -1754,6 +1868,8 @@
 
             <div class="detail-title">${currentCar.brand} ${currentCar.model}</div>
             <div class="detail-price">${Number(currentCar.price || 0).toLocaleString()} درهم</div>
+
+            ${featuredSectionHTML}
 
             <div class="detail-meta">
                 <div class="meta-item">
@@ -1839,6 +1955,48 @@
         }
     }
 
+    // ==================== FEATURED AD REQUEST ====================
+    function openFeaturedModal() {
+        if (!currentCar) return;
+        document.getElementById('featuredReceiptInput').value = '';
+        document.getElementById('featuredModal').classList.add('active');
+    }
+
+    function closeFeaturedModal() {
+        document.getElementById('featuredModal').classList.remove('active');
+    }
+
+    function submitFeaturedRequest() {
+        if (!currentCar) return;
+        const note = document.getElementById('featuredReceiptInput').value.trim();
+        if (!note) {
+            alert('من فضلك أدخل رقم العملية أو ملاحظة التأكيد.');
+            return;
+        }
+        const btn = document.getElementById('submitFeaturedBtn');
+        btn.disabled = true;
+        btn.textContent = 'جاري الإرسال...';
+
+        featuredRequestsCollection.add({
+            carId: currentCar.id,
+            carLabel: `${currentCar.brand} ${currentCar.model}`,
+            phone: currentCar.phone,
+            note: note,
+            status: 'pending',
+            date: new Date().toLocaleDateString('ar-MA'),
+            createdAt: new Date().toISOString()
+        }).then(() => {
+            alert('تم إرسال طلبك! سيتم تفعيل البادج المميز خلال 24 ساعة من التحقق من الدفع.');
+            closeFeaturedModal();
+        }).catch((error) => {
+            console.error(error);
+            alert('حدث خطأ، حاول مرة أخرى.');
+        }).finally(() => {
+            btn.disabled = false;
+            btn.textContent = 'إرسال طلب التفعيل';
+        });
+    }
+
     // ==================== ADD CAR ==================== 
     function openAddCarModal() {
         uploadedImages = [];
@@ -1903,6 +2061,8 @@
             description: document.getElementById('description').value,
             images: uploadedImages.length > 0 ? uploadedImages : ['https://placehold.co/400x300?text=سيارة'],
             approved: false,
+            featured: false,
+            featuredUntil: null,
             date: new Date().toLocaleDateString('ar-MA')
         };
 
@@ -1982,9 +2142,18 @@
     }
 
     // ==================== ADMIN PANEL ====================
-    // 🔑 مهم جداً: هاد الكود ظاهر لأي حد كيفتح كود الموقع (الريبو عام على GitHub).
-    // ننصحوك تبدلو لكود صعيب التخمين، وإلا أمكن لاحقاً نديرو نظام دخول أكثر أماناً.
-    const ADMIN_SECRET_CODE = "Yassine1988";
+    // 🔒 التحقق الآن كيتم عبر Firebase Authentication الحقيقي وليس عبر كود
+    // مكتوب مباشرة فالملف. البريد الإلكتروني ديال الأدمن هنا (ماشي سري بحد
+    // ذاته، الأمان كيجي من كلمة السر المخزنة فـ Firebase Console).
+    const ADMIN_EMAIL = "yassinelahgui252@gmail.com";
+    let isAdminAuthenticated = false;
+
+    auth.onAuthStateChanged((user) => {
+        isAdminAuthenticated = !!(user && user.email === ADMIN_EMAIL);
+        if (!isAdminAuthenticated && document.getElementById('admin-section').style.display === 'block') {
+            showSection('home');
+        }
+    });
 
     let logoTapCount = 0;
     let logoTapTimer = null;
@@ -2012,22 +2181,30 @@
 
     function checkAdminPassword() {
         const entered = document.getElementById('adminPasswordInput').value;
-        if (entered === ADMIN_SECRET_CODE) {
-            sessionStorage.setItem('isAdmin', 'true');
-            closeAdminLogin();
-            showSection('admin');
-        } else {
-            document.getElementById('adminLoginError').style.display = 'block';
-        }
+        const errorBox = document.getElementById('adminLoginError');
+        const loginBtn = document.querySelector('#adminLoginModal .search-btn');
+        errorBox.style.display = 'none';
+        if (loginBtn) { loginBtn.disabled = true; loginBtn.textContent = 'جاري التحقق...'; }
+
+        auth.signInWithEmailAndPassword(ADMIN_EMAIL, entered)
+            .then(() => {
+                closeAdminLogin();
+                showSection('admin');
+            })
+            .catch(() => {
+                errorBox.style.display = 'block';
+            })
+            .finally(() => {
+                if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = 'دخول'; }
+            });
     }
 
     function adminLogout() {
-        sessionStorage.removeItem('isAdmin');
-        showSection('home');
+        auth.signOut().then(() => showSection('home'));
     }
 
     function showSection(section) {
-        if (section === 'admin' && sessionStorage.getItem('isAdmin') !== 'true') {
+        if (section === 'admin' && !isAdminAuthenticated) {
             openAdminLogin();
             return;
         }
@@ -2043,7 +2220,8 @@
         const approvedCars = cars.filter(c => c.approved).length;
         const pendingCars = cars.filter(c => !c.approved).length;
         const totalUsers = users.length;
-        const totalRevenue = approvedCars * 500;
+        const approvedFeatured = featuredRequests.filter(r => r.status === 'approved').length;
+        const totalRevenue = approvedFeatured * 20;
 
         document.getElementById('totalCars').textContent = cars.length;
         document.getElementById('pendingCars').textContent = pendingCars;
@@ -2052,6 +2230,7 @@
 
         renderPendingListings();
         renderApprovedListings();
+        renderFeaturedRequests();
         renderUsers();
     }
 
@@ -2083,12 +2262,38 @@
             ? '<tr><td colspan="5" class="empty-message">لا توجد إعلانات معتمدة</td></tr>'
             : approved.map(car => `
                 <tr>
-                    <td>${car.brand} ${car.model}</td>
+                    <td>${car.brand} ${car.model}${isFeaturedActive(car) ? ' ⭐' : ''}</td>
                     <td>${Number(car.price || 0).toLocaleString()}</td>
                     <td>${car.city}</td>
                     <td>${car.date}</td>
                     <td>
                         <button class="action-btn delete-btn" onclick="deleteCar('${car.id}')">✕ حذف</button>
+                    </td>
+                </tr>
+            `).join('');
+    }
+
+    function renderFeaturedRequests() {
+        const tbody = document.getElementById('featuredRequestsTable');
+        if (!tbody) return;
+        tbody.innerHTML = featuredRequests.length === 0
+            ? '<tr><td colspan="6" class="empty-message">لا توجد طلبات</td></tr>'
+            : featuredRequests.slice().reverse().map(req => `
+                <tr>
+                    <td>${req.carLabel || ''}</td>
+                    <td>${req.phone || ''}</td>
+                    <td>${req.note || ''}</td>
+                    <td>${req.date || ''}</td>
+                    <td>${
+                        req.status === 'approved' ? '<span style="color:#10B981;">✓ مفعّل</span>'
+                        : req.status === 'rejected' ? '<span style="color:var(--danger);">✕ مرفوض</span>'
+                        : '⏳ قيد الانتظار'
+                    }</td>
+                    <td>
+                        ${req.status === 'pending' ? `
+                            <button class="action-btn approve-btn" onclick="approveFeaturedRequest('${req.id}','${req.carId}')">✓ تفعيل 7 أيام</button>
+                            <button class="action-btn delete-btn" onclick="rejectFeaturedRequest('${req.id}')">✕ رفض</button>
+                        ` : ''}
                     </td>
                 </tr>
             `).join('');
@@ -2127,6 +2332,31 @@
             }).catch((error) => {
                 console.error(error);
                 alert('حدث خطأ، حاول مرة أخرى.');
+            });
+        }
+    }
+
+    // تفعيل / رفض طلبات "الإعلان المميز" من طرف الأدمن
+    function approveFeaturedRequest(requestId, carId) {
+        const until = new Date();
+        until.setDate(until.getDate() + 7);
+        carsCollection.doc(carId).update({
+            featured: true,
+            featuredUntil: until.toISOString()
+        }).then(() => {
+            return featuredRequestsCollection.doc(requestId).update({ status: 'approved' });
+        }).then(() => {
+            alert('تم تفعيل الإعلان المميز لمدة 7 أيام!');
+        }).catch((error) => {
+            console.error(error);
+            alert('حدث خطأ، حاول مرة أخرى.');
+        });
+    }
+
+    function rejectFeaturedRequest(requestId) {
+        if (confirm('هل تريد رفض هذا الطلب؟')) {
+            featuredRequestsCollection.doc(requestId).update({ status: 'rejected' }).catch((error) => {
+                console.error(error);
             });
         }
     }

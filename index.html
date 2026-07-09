@@ -1907,12 +1907,15 @@
 </footer>
 
 <!-- ==================== FIREBASE SDK (compat, no build tools needed) ==================== -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-auth-compat.js"></script>
 
 <script>
     // ==================== FIREBASE INIT ====================
+    // ملحوظة مهمة: هاد الجزء ملفوف بـ try/catch عن قصد. إلا فشل تحميل مكتبة
+    // Firebase (بسبب ضعف الأنترنت، حاجب إعلانات، أو أي سبب)، ماشي خاص التطبيق
+    // كامل يتوقف (زر "أضف سيارتك" وزر الأدمن خاصهم يخدموا حتى بلا فايربيز).
     const firebaseConfig = {
         apiKey: "AIzaSyBKR44SYJtBfAw_WxSiYQEeUw_s1EWrw3I",
         authDomain: "automarket-app-5f1f6.firebaseapp.com",
@@ -1921,16 +1924,58 @@
         messagingSenderId: "80677274013",
         appId: "1:80677274013:web:1a57b0ce6e8a559d196f74"
     };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    // بعض شبكات الهاتف/الواي فاي فالمغرب كتحجب نوع الاتصال (WebChannel) اللي
-    // Firestore كيستعمل بالإفتراضي، فهاد السطر كيجبر استعمال Long Polling
-    // اللي كيخدم على أي شبكة، حتى لو شوية أبطأ.
-    db.settings({ experimentalForceLongPolling: true, merge: true });
-    const auth = firebase.auth();
-    const carsCollection = db.collection('cars');
-    const usersCollection = db.collection('users');
-    const featuredRequestsCollection = db.collection('featuredRequests');
+
+    let db, auth, carsCollection, usersCollection, featuredRequestsCollection;
+    let firebaseReady = false;
+
+    // كولكشن وهمية كتستعمل غير إلا فشل الاتصال بـ Firebase، باش أي دالة
+    // كتستعمل carsCollection.onSnapshot(...) أو .add(...) ما تعطيش خطأ يوقف السكريبت
+    function makeFallbackCollection() {
+        return {
+            onSnapshot(onNext) { try { onNext({ docs: [] }); } catch (e) {} return function unsubscribe(){}; },
+            add() { return Promise.reject(new Error('لا يوجد اتصال بقاعدة البيانات حالياً')); },
+            doc() {
+                return {
+                    update() { return Promise.reject(new Error('لا يوجد اتصال بقاعدة البيانات حالياً')); },
+                    delete() { return Promise.reject(new Error('لا يوجد اتصال بقاعدة البيانات حالياً')); }
+                };
+            }
+        };
+    }
+
+    try {
+        if (typeof firebase === 'undefined') {
+            throw new Error('مكتبة Firebase ما تحملاتش (تحقق من الأنترنت)');
+        }
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        // بعض شبكات الهاتف/الواي فاي فالمغرب كتحجب نوع الاتصال (WebChannel) اللي
+        // Firestore كيستعمل بالإفتراضي، فهاد السطر كيجبر استعمال Long Polling
+        // اللي كيخدم على أي شبكة، حتى لو شوية أبطأ.
+        db.settings({ experimentalForceLongPolling: true, merge: true });
+        auth = firebase.auth();
+        carsCollection = db.collection('cars');
+        usersCollection = db.collection('users');
+        featuredRequestsCollection = db.collection('featuredRequests');
+        firebaseReady = true;
+    } catch (err) {
+        console.error('Firebase init failed, running in degraded mode:', err);
+        carsCollection = makeFallbackCollection();
+        usersCollection = makeFallbackCollection();
+        featuredRequestsCollection = makeFallbackCollection();
+        auth = {
+            onAuthStateChanged() { return function unsubscribe(){}; },
+            signInWithEmailAndPassword() { return Promise.reject(new Error('لا يوجد اتصال، تحقق من الأنترنت وأعد المحاولة')); },
+            signOut() { return Promise.resolve(); }
+        };
+        // كنبينو تنبيه واضح فوق الصفحة مباشرة (بدل ما يكتشف المستخدم المشكل
+        // غير ملي يحاول ينشر سيارة)، باش يعرف يعاود تحميل الصفحة أو يبدل الشبكة
+        const banner = document.createElement('div');
+        banner.style.cssText = 'position:sticky;top:0;z-index:9999;background:#EF4444;color:#fff;padding:10px 14px;text-align:center;font-size:14px;font-family:Tajawal,sans-serif;';
+        banner.innerHTML = '⚠️ تعذر الاتصال بقاعدة البيانات. السيارات ما غاديش تبان والنشر معطل. تحقق من الأنترنت وأعد تحميل الصفحة. <button onclick="location.reload()" style="margin-right:8px;background:#fff;color:#EF4444;border:none;padding:4px 10px;border-radius:4px;font-weight:bold;">إعادة تحميل</button>';
+        document.body.prepend(banner);
+    }
+
 
     // ==================== DATA STORAGE (now backed by Firestore, not localStorage) ====================
     let cars = [];
@@ -1941,7 +1986,47 @@
     const CLOUDINARY_CLOUD_NAME = 'h761bsaq';
     const CLOUDINARY_UPLOAD_PRESET = 'dari_ma_videos';
 
-    function uploadToCloudinary(file, resourceType) {
+    // كتضغط الصورة قبل الرفع (تصغير الأبعاد + تقليل الجودة) باش:
+    // 1) يبقى الرفع سريع وما يفشلش بسبب ضعف الأنترنت
+    // 2) ما توصلش لحجم كبير كيرفضو Cloudinary
+    function compressImage(file, maxWidth = 1600, quality = 0.75) {
+        return new Promise((resolve) => {
+            // إلا ماشي صورة (مثلاً فيديو)، رجع الملف الأصلي كيفما هو
+            if (!file.type || !file.type.startsWith('image/')) {
+                resolve(file);
+                return;
+            }
+            const img = new Image();
+            const objectUrl = URL.createObjectURL(file);
+            img.onload = () => {
+                let { width, height } = img;
+                if (width > maxWidth) {
+                    height = Math.round(height * (maxWidth / width));
+                    width = maxWidth;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                URL.revokeObjectURL(objectUrl);
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        resolve(new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' }));
+                    } else {
+                        resolve(file); // إلا فشل الضغط، رفع الملف الأصلي
+                    }
+                }, 'image/jpeg', quality);
+            };
+            img.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
+                resolve(file); // إلا فشلات القراءة، رفع الملف الأصلي كيفما هو
+            };
+            img.src = objectUrl;
+        });
+    }
+
+    function uploadToCloudinaryOnce(file, resourceType) {
         return new Promise((resolve, reject) => {
             const endpoint = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`;
             const formData = new FormData();
@@ -1959,6 +2044,26 @@
                 })
                 .catch(() => reject('تعذر الاتصال بخدمة الرفع، تحقق من الإنترنت'));
         });
+    }
+
+    // كيعاود المحاولة تلقائياً (3 محاولات) قبل ما يعتبرها فاشلة نهائياً،
+    // هادشي كيقلل بزاف من "بعض الصور ما كتحملش" بسبب انقطاع بسيط فالنت
+    function uploadToCloudinary(file, resourceType, attemptsLeft = 3) {
+        const doUpload = (fileToSend) => {
+            return uploadToCloudinaryOnce(fileToSend, resourceType).catch((err) => {
+                if (attemptsLeft > 1) {
+                    return new Promise((res) => setTimeout(res, 1200)).then(() =>
+                        uploadToCloudinary(fileToSend, resourceType, attemptsLeft - 1)
+                    );
+                }
+                throw err;
+            });
+        };
+
+        if (resourceType === 'image') {
+            return compressImage(file).then(doUpload);
+        }
+        return doUpload(file);
     }
 
     let uploadedImages = []; // [{ id, previewUrl, cloudUrl, status: 'uploading'|'done'|'error' }]
@@ -2228,27 +2333,33 @@
         document.getElementById('addCarModal').classList.remove('active');
     }
 
+    function startImageUpload(item) {
+        item.status = 'uploading';
+        renderImagePreview();
+        uploadToCloudinary(item.file, 'image').then(url => {
+            item.cloudUrl = url;
+            item.status = 'done';
+            renderImagePreview();
+        }).catch(err => {
+            item.status = 'error';
+            renderImagePreview();
+            console.error(err);
+        });
+    }
+
     function handleImageUpload(event) {
         const files = Array.from(event.target.files);
         files.forEach(file => {
             const item = {
                 id: 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+                file: file,
                 previewUrl: URL.createObjectURL(file),
                 cloudUrl: null,
                 status: 'uploading'
             };
             uploadedImages.push(item);
             renderImagePreview();
-
-            uploadToCloudinary(file, 'image').then(url => {
-                item.cloudUrl = url;
-                item.status = 'done';
-                renderImagePreview();
-            }).catch(err => {
-                item.status = 'error';
-                renderImagePreview();
-                console.error(err);
-            });
+            startImageUpload(item);
         });
         event.target.value = '';
     }
@@ -2259,10 +2370,16 @@
             <div class="preview-img">
                 <img src="${item.previewUrl}" alt="">
                 ${item.status === 'uploading' ? '<div class="upload-status uploading">⏳ جاري الرفع...</div>' : ''}
-                ${item.status === 'error' ? '<div class="upload-status error">⚠️ فشل، احذفها وحاول</div>' : ''}
+                ${item.status === 'error' ? '<div class="upload-status error">⚠️ فشل الرفع</div>' : ''}
+                ${item.status === 'error' ? `<button type="button" class="remove-img" style="left:auto;right:28px;background:#1C9C6B;" onclick="retryImage(${idx})">↻</button>` : ''}
                 <button type="button" class="remove-img" onclick="removeImage(${idx})">✕</button>
             </div>
         `).join('');
+    }
+
+    function retryImage(idx) {
+        const item = uploadedImages[idx];
+        if (item) startImageUpload(item);
     }
 
     function removeImage(idx) {
@@ -2270,18 +2387,10 @@
         renderImagePreview();
     }
 
-    function handleVideoUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        uploadedVideo = {
-            previewUrl: URL.createObjectURL(file),
-            cloudUrl: null,
-            status: 'uploading'
-        };
+    function startVideoUpload() {
+        uploadedVideo.status = 'uploading';
         renderVideoPreview();
-
-        uploadToCloudinary(file, 'video').then(url => {
+        uploadToCloudinary(uploadedVideo.file, 'video').then(url => {
             uploadedVideo.cloudUrl = url;
             uploadedVideo.status = 'done';
             renderVideoPreview();
@@ -2290,7 +2399,25 @@
             renderVideoPreview();
             console.error(err);
         });
+    }
+
+    function handleVideoUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        uploadedVideo = {
+            file: file,
+            previewUrl: URL.createObjectURL(file),
+            cloudUrl: null,
+            status: 'uploading'
+        };
+        renderVideoPreview();
+        startVideoUpload();
         event.target.value = '';
+    }
+
+    function retryVideo() {
+        if (uploadedVideo) startVideoUpload();
     }
 
     function renderVideoPreview() {
@@ -2303,7 +2430,8 @@
             <div class="preview-video">
                 <video src="${uploadedVideo.previewUrl}" controls muted></video>
                 ${uploadedVideo.status === 'uploading' ? '<div class="upload-status uploading">⏳ جاري رفع الفيديو...</div>' : ''}
-                ${uploadedVideo.status === 'error' ? '<div class="upload-status error">⚠️ فشل، احذفه وحاول</div>' : ''}
+                ${uploadedVideo.status === 'error' ? '<div class="upload-status error">⚠️ فشل الرفع</div>' : ''}
+                ${uploadedVideo.status === 'error' ? '<button type="button" class="remove-img" style="left:auto;right:28px;background:#1C9C6B;" onclick="retryVideo()">↻</button>' : ''}
                 <button type="button" class="remove-img" onclick="removeVideo()">✕</button>
             </div>
         `;
@@ -2326,6 +2454,30 @@
             return;
         }
 
+        const yearVal = parseInt(document.getElementById('year').value);
+        const mileageVal = parseInt(document.getElementById('mileage').value);
+        const priceVal = parseInt(document.getElementById('price').value);
+        const brandVal = document.getElementById('brand').value.trim();
+        const modelVal = document.getElementById('model').value.trim();
+        const cityVal = document.getElementById('city').value;
+        const phoneVal = document.getElementById('phone').value.trim();
+
+        // كنتأكدو من الحقول قبل ما نرسلو لـ Firestore، لأن قيمة فارغة أو رقم
+        // غير صالح (NaN) كيرفضها Firestore بصمت وكتبان "خطأ عام" بلا تفاصيل
+        const missing = [];
+        if (!brandVal) missing.push('الماركة');
+        if (!modelVal) missing.push('الموديل');
+        if (!yearVal || isNaN(yearVal)) missing.push('سنة الصنع');
+        if (isNaN(mileageVal)) missing.push('الكيلومتراج');
+        if (!priceVal || isNaN(priceVal)) missing.push('الثمن');
+        if (!cityVal) missing.push('المدينة');
+        if (!phoneVal) missing.push('رقم الهاتف');
+
+        if (missing.length > 0) {
+            alert('كاين حقول ناقصة أو غير صحيحة:\n' + missing.join('، '));
+            return;
+        }
+
         const submitBtn = document.getElementById('submitCarBtn');
         submitBtn.disabled = true;
         submitBtn.textContent = 'جاري النشر...';
@@ -2334,18 +2486,18 @@
         const finalVideo = (uploadedVideo && uploadedVideo.status === 'done') ? uploadedVideo.cloudUrl : null;
 
         const newCar = {
-            brand: document.getElementById('brand').value,
-            model: document.getElementById('model').value,
-            year: parseInt(document.getElementById('year').value),
-            mileage: parseInt(document.getElementById('mileage').value),
+            brand: brandVal,
+            model: modelVal,
+            year: yearVal,
+            mileage: mileageVal,
             fuel: document.getElementById('fuel').value,
             transmission: document.getElementById('transmission').value,
             color: document.getElementById('color').value,
             condition: document.getElementById('condition').value,
-            price: parseInt(document.getElementById('price').value),
-            city: document.getElementById('city').value,
-            phone: document.getElementById('phone').value,
-            whatsapp: document.getElementById('whatsapp').value || document.getElementById('phone').value,
+            price: priceVal,
+            city: cityVal,
+            phone: phoneVal,
+            whatsapp: document.getElementById('whatsapp').value || phoneVal,
             description: document.getElementById('description').value,
             images: finalImages.length > 0 ? finalImages : ['https://placehold.co/400x300?text=سيارة'],
             video: finalVideo,
@@ -2385,7 +2537,10 @@
             if (error && error.message === 'timeout') {
                 alert('الاتصال بطيء بزاف أو الشبكة كتحجب الخدمة. تأكد من الواي فاي/الأنترنت وحاول مرة أخرى (السيارة ممكن تكون توصلات فالخلفية، تحقق من الرئيسية قبل ما تعاود).');
             } else {
-                alert('حدث خطأ أثناء إضافة السيارة، تأكد من اتصالك بالإنترنت وحاول مرة أخرى.');
+                // كنبينو رسالة الخطأ الحقيقية باش تكون قادر تصيفط لينا سكرين شوت
+                // ونعرفو نشوفو السبب بالضبط، عوض رسالة عامة ما كتقولش والو
+                const detail = (error && (error.message || error.code)) ? '\n\nتفاصيل: ' + (error.message || error.code) : '';
+                alert('حدث خطأ أثناء إضافة السيارة.' + detail);
             }
         }).finally(() => {
             submitBtn.disabled = false;

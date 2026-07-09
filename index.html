@@ -1958,6 +1958,7 @@
         usersCollection = db.collection('users');
         featuredRequestsCollection = db.collection('featuredRequests');
         firebaseReady = true;
+        try { sessionStorage.removeItem('fbAutoRetryDone'); } catch (e) {}
     } catch (err) {
         console.error('Firebase init failed, running in degraded mode:', err);
         carsCollection = makeFallbackCollection();
@@ -1968,6 +1969,41 @@
             signInWithEmailAndPassword() { return Promise.reject(new Error('لا يوجد اتصال، تحقق من الأنترنت وأعد المحاولة')); },
             signOut() { return Promise.resolve(); }
         };
+        // كنبينو تنبيه واضح فوق الصفحة مباشرة إلا Firebase ما تحملش، باش
+        // المستخدم يعرف من البداية أن الموقع خدام فوضع محدود (بلا قاعدة
+        // بيانات) عوض ما يكتشف غير منين يحاول ينشر سيارة أو يدخل كأدمين.
+        function showFirebaseFailBanner() {
+            const banner = document.createElement('div');
+            const detail = (err && err.message) ? (' — ' + err.message) : '';
+            banner.textContent = '⚠️ تعذر الاتصال بقاعدة البيانات (تحقق من الأنترنت وأعد تحميل الصفحة). بعض الميزات معطلة مؤقتاً.' + detail;
+            banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#c0392b;color:#fff;text-align:center;padding:10px 14px;font-family:Tajawal,sans-serif;font-weight:700;font-size:13px;';
+            document.body.appendChild(banner);
+        }
+        // إلا الشبكة كانت مقطوعة/بطيئة لحظة تحميل الصفحة، غالباً غادي تكون
+        // رجعات عادية بعد ثواني قليلة. فبدل ما نخليو الموقع يبقى فوضع محدود
+        // طول الجلسة، كنعاودو نحملو الصفحة تلقائياً مرة وحدة فقط (باستعمال
+        // sessionStorage باش ما نديرو حلقة لا نهائية إلا الشبكة فعلاً مقطوعة).
+        let skipBanner = false;
+        try {
+            if (!sessionStorage.getItem('fbAutoRetryDone')) {
+                sessionStorage.setItem('fbAutoRetryDone', '1');
+                setTimeout(function () { location.reload(); }, 2500);
+                skipBanner = true; // غادي نعاودو نحملو الصفحة تلقائياً، مانبيناوش التنبيه دابا
+            } else {
+                // إلا فشلات المحاولة الثانية زادة، كنمسحو العلامة باش المحاولة
+                // التالية (بعد ما المستخدم يعاود يفتح الصفحة يدوياً) تقدر تعاود الكرة
+                sessionStorage.removeItem('fbAutoRetryDone');
+            }
+        } catch (e) { /* sessionStorage ممكن يكون محجوب فبعض المتصفحات */ }
+        // إلا كان الـ DOM already تحمل (الحدث DOMContentLoaded already وقع
+        // قبل ما نوصلو هنا)، نبينو التنبيه مباشرة. وإلا ماخصناش ننتظرو الحدث.
+        if (!skipBanner) {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', showFirebaseFailBanner);
+            } else {
+                showFirebaseFailBanner();
+            }
+        }
     }
 
 
@@ -2644,7 +2680,29 @@
                 closeAdminLogin();
                 showSection('admin');
             })
-            .catch(() => {
+            .catch((error) => {
+                // كنبينو السبب الحقيقي ديال الخطأ (error.code) عوض ما نقولو
+                // "كلمة السر غير صحيحة" فكل الحالات، لأن هاد الرسالة كانت
+                // كتبان حتى إلا كان السبب شي حاجة أخرى (الحساب ما كاينش،
+                // Email/Password مش مفعّل فـ Firebase، أو مشكل فالشبكة).
+                console.error('Admin login error:', error);
+                let msg = '❌ كلمة السر غير صحيحة';
+                if (error && error.code) {
+                    if (error.code === 'auth/user-not-found') {
+                        msg = '❌ الحساب ديال الأدمين ما كاينش فـ Firebase Authentication. خاصك تخلقو من Firebase Console.';
+                    } else if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials') {
+                        msg = '❌ كلمة السر غير صحيحة';
+                    } else if (error.code === 'auth/operation-not-allowed') {
+                        msg = '❌ تسجيل الدخول بالإيميل/كلمة السر مش مفعّل فـ Firebase Console (Authentication → Sign-in method).';
+                    } else if (error.code === 'auth/network-request-failed') {
+                        msg = '❌ لا يوجد اتصال بالأنترنت، حاول مرة أخرى.';
+                    } else if (error.code === 'auth/too-many-requests') {
+                        msg = '❌ محاولات كثيرة، حاول بعد شوية.';
+                    } else {
+                        msg = '❌ خطأ: ' + error.code;
+                    }
+                }
+                errorBox.textContent = msg;
                 errorBox.style.display = 'block';
             })
             .finally(() => {

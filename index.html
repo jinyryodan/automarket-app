@@ -749,6 +749,43 @@
             border-radius: 50%;
             cursor: pointer;
             font-size: 12px;
+            z-index: 2;
+        }
+
+        .upload-status {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 4px 6px;
+            font-size: 11px;
+            text-align: center;
+            color: white;
+        }
+
+        .upload-status.uploading {
+            background: rgba(0, 102, 204, 0.85);
+        }
+
+        .upload-status.error {
+            background: rgba(220, 53, 69, 0.9);
+        }
+
+        .preview-video {
+            position: relative;
+            width: 100%;
+            max-width: 260px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--light);
+            margin-top: 10px;
+        }
+
+        .preview-video video {
+            width: 100%;
+            max-height: 200px;
+            display: block;
+            object-fit: cover;
         }
 
         .submit-btn {
@@ -1263,22 +1300,90 @@
                     <input type="text" id="searchBrand" placeholder="اختر الماركة...">
                     <select id="searchCity">
                         <option value="">جميع المدن</option>
-                        <option value="الدار البيضاء">الدار البيضاء</option>
-                        <option value="الرباط">الرباط</option>
-                        <option value="فاس">فاس</option>
-                        <option value="مراكش">مراكش</option>
-                        <option value="طنجة">طنجة</option>
-                        <option value="أكادير">أكادير</option>
-                        <option value="مكناس">مكناس</option>
-                        <option value="وجدة">وجدة</option>
-                        <option value="تطوان">تطوان</option>
-                        <option value="القنيطرة">القنيطرة</option>
-                        <option value="الجديدة">الجديدة</option>
                         <option value="آسفي">آسفي</option>
-                        <option value="بني ملال">بني ملال</option>
-                        <option value="الناظور">الناظور</option>
-                        <option value="العيون">العيون</option>
+                        <option value="أزمور">أزمور</option>
+                        <option value="أزيلال">أزيلال</option>
+                        <option value="أسا الزاك">أسا الزاك</option>
+                        <option value="أصيلة">أصيلة</option>
+                        <option value="أكادير">أكادير</option>
+                        <option value="أيت ملول">أيت ملول</option>
+                        <option value="إفران">إفران</option>
+                        <option value="إمنتانوت">إمنتانوت</option>
+                        <option value="إنزكان">إنزكان</option>
+                        <option value="الجديدة">الجديدة</option>
+                        <option value="الحاجب">الحاجب</option>
+                        <option value="الحسيمة">الحسيمة</option>
+                        <option value="الخميسات">الخميسات</option>
                         <option value="الداخلة">الداخلة</option>
+                        <option value="الدار البيضاء">الدار البيضاء</option>
+                        <option value="الدريوش">الدريوش</option>
+                        <option value="الرباط">الرباط</option>
+                        <option value="الرشيدية">الرشيدية</option>
+                        <option value="السمارة">السمارة</option>
+                        <option value="الصويرة">الصويرة</option>
+                        <option value="العرائش">العرائش</option>
+                        <option value="العيون">العيون</option>
+                        <option value="الفقيه بن صالح">الفقيه بن صالح</option>
+                        <option value="الفنيدق">الفنيدق</option>
+                        <option value="القصر الكبير">القصر الكبير</option>
+                        <option value="القنيطرة">القنيطرة</option>
+                        <option value="المحمدية">المحمدية</option>
+                        <option value="الناظور">الناظور</option>
+                        <option value="النواصر">النواصر</option>
+                        <option value="اليوسفية">اليوسفية</option>
+                        <option value="برشيد">برشيد</option>
+                        <option value="بركان">بركان</option>
+                        <option value="بنسليمان">بنسليمان</option>
+                        <option value="بني ملال">بني ملال</option>
+                        <option value="بوجدور">بوجدور</option>
+                        <option value="بوزنيقة">بوزنيقة</option>
+                        <option value="بوسكورة">بوسكورة</option>
+                        <option value="بولمان">بولمان</option>
+                        <option value="تارودانت">تارودانت</option>
+                        <option value="تازة">تازة</option>
+                        <option value="تافراوت">تافراوت</option>
+                        <option value="تاوريرت">تاوريرت</option>
+                        <option value="تاونات">تاونات</option>
+                        <option value="تزنيت">تزنيت</option>
+                        <option value="تطوان">تطوان</option>
+                        <option value="تمارة">تمارة</option>
+                        <option value="تنغير">تنغير</option>
+                        <option value="تيفلت">تيفلت</option>
+                        <option value="جرادة">جرادة</option>
+                        <option value="جرسيف">جرسيف</option>
+                        <option value="حد السوالم">حد السوالم</option>
+                        <option value="خريبكة">خريبكة</option>
+                        <option value="خنيفرة">خنيفرة</option>
+                        <option value="دار بوعزة">دار بوعزة</option>
+                        <option value="زاكورة">زاكورة</option>
+                        <option value="زايو">زايو</option>
+                        <option value="سطات">سطات</option>
+                        <option value="سلا">سلا</option>
+                        <option value="سيدي إفني">سيدي إفني</option>
+                        <option value="سيدي بنور">سيدي بنور</option>
+                        <option value="سيدي سليمان">سيدي سليمان</option>
+                        <option value="سيدي قاسم">سيدي قاسم</option>
+                        <option value="سيدي يحيى الغرب">سيدي يحيى الغرب</option>
+                        <option value="شتوكة آيت باها">شتوكة آيت باها</option>
+                        <option value="شفشاون">شفشاون</option>
+                        <option value="صفرو">صفرو</option>
+                        <option value="طانطان">طانطان</option>
+                        <option value="طرفاية">طرفاية</option>
+                        <option value="طنجة">طنجة</option>
+                        <option value="عين حرودة">عين حرودة</option>
+                        <option value="فاس">فاس</option>
+                        <option value="قلعة السراغنة">قلعة السراغنة</option>
+                        <option value="كلميم">كلميم</option>
+                        <option value="مارتيل">مارتيل</option>
+                        <option value="مديونة">مديونة</option>
+                        <option value="مراكش">مراكش</option>
+                        <option value="مكناس">مكناس</option>
+                        <option value="ميدلت">ميدلت</option>
+                        <option value="ميسور">ميسور</option>
+                        <option value="وادي زم">وادي زم</option>
+                        <option value="وجدة">وجدة</option>
+                        <option value="ورزازات">ورزازات</option>
+                        <option value="وزان">وزان</option>
                     </select>
                     <input type="number" id="searchPriceMin" placeholder="السعر الأدنى">
                     <input type="number" id="searchPriceMax" placeholder="السعر الأقصى">
@@ -1481,22 +1586,90 @@
                     <label>المدينة</label>
                     <select id="city" required>
                         <option value="">اختر المدينة...</option>
-                        <option value="الدار البيضاء">الدار البيضاء</option>
-                        <option value="الرباط">الرباط</option>
-                        <option value="فاس">فاس</option>
-                        <option value="مراكش">مراكش</option>
-                        <option value="طنجة">طنجة</option>
-                        <option value="أكادير">أكادير</option>
-                        <option value="مكناس">مكناس</option>
-                        <option value="وجدة">وجدة</option>
-                        <option value="تطوان">تطوان</option>
-                        <option value="القنيطرة">القنيطرة</option>
-                        <option value="الجديدة">الجديدة</option>
                         <option value="آسفي">آسفي</option>
-                        <option value="بني ملال">بني ملال</option>
-                        <option value="الناظور">الناظور</option>
-                        <option value="العيون">العيون</option>
+                        <option value="أزمور">أزمور</option>
+                        <option value="أزيلال">أزيلال</option>
+                        <option value="أسا الزاك">أسا الزاك</option>
+                        <option value="أصيلة">أصيلة</option>
+                        <option value="أكادير">أكادير</option>
+                        <option value="أيت ملول">أيت ملول</option>
+                        <option value="إفران">إفران</option>
+                        <option value="إمنتانوت">إمنتانوت</option>
+                        <option value="إنزكان">إنزكان</option>
+                        <option value="الجديدة">الجديدة</option>
+                        <option value="الحاجب">الحاجب</option>
+                        <option value="الحسيمة">الحسيمة</option>
+                        <option value="الخميسات">الخميسات</option>
                         <option value="الداخلة">الداخلة</option>
+                        <option value="الدار البيضاء">الدار البيضاء</option>
+                        <option value="الدريوش">الدريوش</option>
+                        <option value="الرباط">الرباط</option>
+                        <option value="الرشيدية">الرشيدية</option>
+                        <option value="السمارة">السمارة</option>
+                        <option value="الصويرة">الصويرة</option>
+                        <option value="العرائش">العرائش</option>
+                        <option value="العيون">العيون</option>
+                        <option value="الفقيه بن صالح">الفقيه بن صالح</option>
+                        <option value="الفنيدق">الفنيدق</option>
+                        <option value="القصر الكبير">القصر الكبير</option>
+                        <option value="القنيطرة">القنيطرة</option>
+                        <option value="المحمدية">المحمدية</option>
+                        <option value="الناظور">الناظور</option>
+                        <option value="النواصر">النواصر</option>
+                        <option value="اليوسفية">اليوسفية</option>
+                        <option value="برشيد">برشيد</option>
+                        <option value="بركان">بركان</option>
+                        <option value="بنسليمان">بنسليمان</option>
+                        <option value="بني ملال">بني ملال</option>
+                        <option value="بوجدور">بوجدور</option>
+                        <option value="بوزنيقة">بوزنيقة</option>
+                        <option value="بوسكورة">بوسكورة</option>
+                        <option value="بولمان">بولمان</option>
+                        <option value="تارودانت">تارودانت</option>
+                        <option value="تازة">تازة</option>
+                        <option value="تافراوت">تافراوت</option>
+                        <option value="تاوريرت">تاوريرت</option>
+                        <option value="تاونات">تاونات</option>
+                        <option value="تزنيت">تزنيت</option>
+                        <option value="تطوان">تطوان</option>
+                        <option value="تمارة">تمارة</option>
+                        <option value="تنغير">تنغير</option>
+                        <option value="تيفلت">تيفلت</option>
+                        <option value="جرادة">جرادة</option>
+                        <option value="جرسيف">جرسيف</option>
+                        <option value="حد السوالم">حد السوالم</option>
+                        <option value="خريبكة">خريبكة</option>
+                        <option value="خنيفرة">خنيفرة</option>
+                        <option value="دار بوعزة">دار بوعزة</option>
+                        <option value="زاكورة">زاكورة</option>
+                        <option value="زايو">زايو</option>
+                        <option value="سطات">سطات</option>
+                        <option value="سلا">سلا</option>
+                        <option value="سيدي إفني">سيدي إفني</option>
+                        <option value="سيدي بنور">سيدي بنور</option>
+                        <option value="سيدي سليمان">سيدي سليمان</option>
+                        <option value="سيدي قاسم">سيدي قاسم</option>
+                        <option value="سيدي يحيى الغرب">سيدي يحيى الغرب</option>
+                        <option value="شتوكة آيت باها">شتوكة آيت باها</option>
+                        <option value="شفشاون">شفشاون</option>
+                        <option value="صفرو">صفرو</option>
+                        <option value="طانطان">طانطان</option>
+                        <option value="طرفاية">طرفاية</option>
+                        <option value="طنجة">طنجة</option>
+                        <option value="عين حرودة">عين حرودة</option>
+                        <option value="فاس">فاس</option>
+                        <option value="قلعة السراغنة">قلعة السراغنة</option>
+                        <option value="كلميم">كلميم</option>
+                        <option value="مارتيل">مارتيل</option>
+                        <option value="مديونة">مديونة</option>
+                        <option value="مراكش">مراكش</option>
+                        <option value="مكناس">مكناس</option>
+                        <option value="ميدلت">ميدلت</option>
+                        <option value="ميسور">ميسور</option>
+                        <option value="وادي زم">وادي زم</option>
+                        <option value="وجدة">وجدة</option>
+                        <option value="ورزازات">ورزازات</option>
+                        <option value="وزان">وزان</option>
                     </select>
                 </div>
             </div>
@@ -1519,12 +1692,22 @@
 
             <!-- Images -->
             <div class="form-group">
-                <label>صور السيارة (يفضل صورة أو صورتين، بحجم صغير)</label>
+                <label>صور السيارة</label>
                 <div class="image-upload" onclick="document.getElementById('imageInput').click()">
-                    <p>اضغط هنا أو اسحب الصور</p>
+                    <p>اضغط هنا لإضافة صور (أي حجم)</p>
                     <input type="file" id="imageInput" multiple accept="image/*" onchange="handleImageUpload(event)">
                 </div>
                 <div id="imagePreview" class="image-preview"></div>
+            </div>
+
+            <!-- Video -->
+            <div class="form-group">
+                <label>فيديو للسيارة (اختياري)</label>
+                <div class="image-upload" onclick="document.getElementById('videoInput').click()">
+                    <p>اضغط هنا لإضافة فيديو</p>
+                    <input type="file" id="videoInput" accept="video/*" onchange="handleVideoUpload(event)">
+                </div>
+                <div id="videoPreview"></div>
             </div>
 
             <button type="submit" class="submit-btn" id="submitCarBtn">نشر الإعلان</button>
@@ -1740,6 +1923,10 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    // بعض شبكات الهاتف/الواي فاي فالمغرب كتحجب نوع الاتصال (WebChannel) اللي
+    // Firestore كيستعمل بالإفتراضي، فهاد السطر كيجبر استعمال Long Polling
+    // اللي كيخدم على أي شبكة، حتى لو شوية أبطأ.
+    db.settings({ experimentalForceLongPolling: true, merge: true });
     const auth = firebase.auth();
     const carsCollection = db.collection('cars');
     const usersCollection = db.collection('users');
@@ -1750,7 +1937,32 @@
     let users = [];
     let featuredRequests = [];
     let currentCar = null;
-    let uploadedImages = [];
+    // ==================== CLOUDINARY UPLOAD ====================
+    const CLOUDINARY_CLOUD_NAME = 'h761bsaq';
+    const CLOUDINARY_UPLOAD_PRESET = 'dari_ma_videos';
+
+    function uploadToCloudinary(file, resourceType) {
+        return new Promise((resolve, reject) => {
+            const endpoint = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`;
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+            fetch(endpoint, { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.secure_url) {
+                        resolve(data.secure_url);
+                    } else {
+                        reject((data.error && data.error.message) || 'فشل رفع الملف');
+                    }
+                })
+                .catch(() => reject('تعذر الاتصال بخدمة الرفع، تحقق من الإنترنت'));
+        });
+    }
+
+    let uploadedImages = []; // [{ id, previewUrl, cloudUrl, status: 'uploading'|'done'|'error' }]
+    let uploadedVideo = null; // { previewUrl, cloudUrl, status }
     let currentLanguage = 'ar';
 
     // ==================== INITIALIZATION ====================
@@ -1865,6 +2077,11 @@
                     `).join('')}
                 </div>
             </div>
+
+            ${currentCar.video ? `
+            <div style="margin-top: 12px;">
+                <video src="${currentCar.video}" controls style="width: 100%; border-radius: 8px; max-height: 300px; background: #000;"></video>
+            </div>` : ''}
 
             <div class="detail-title">${currentCar.brand} ${currentCar.model}</div>
             <div class="detail-price">${Number(currentCar.price || 0).toLocaleString()} درهم</div>
@@ -2000,8 +2217,10 @@
     // ==================== ADD CAR ==================== 
     function openAddCarModal() {
         uploadedImages = [];
+        uploadedVideo = null;
         document.getElementById('addCarForm').reset();
         document.getElementById('imagePreview').innerHTML = '';
+        document.getElementById('videoPreview').innerHTML = '';
         document.getElementById('addCarModal').classList.add('active');
     }
 
@@ -2012,20 +2231,35 @@
     function handleImageUpload(event) {
         const files = Array.from(event.target.files);
         files.forEach(file => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                uploadedImages.push(e.target.result);
-                renderImagePreview();
+            const item = {
+                id: 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+                previewUrl: URL.createObjectURL(file),
+                cloudUrl: null,
+                status: 'uploading'
             };
-            reader.readAsDataURL(file);
+            uploadedImages.push(item);
+            renderImagePreview();
+
+            uploadToCloudinary(file, 'image').then(url => {
+                item.cloudUrl = url;
+                item.status = 'done';
+                renderImagePreview();
+            }).catch(err => {
+                item.status = 'error';
+                renderImagePreview();
+                console.error(err);
+            });
         });
+        event.target.value = '';
     }
 
     function renderImagePreview() {
         const preview = document.getElementById('imagePreview');
-        preview.innerHTML = uploadedImages.map((img, idx) => `
+        preview.innerHTML = uploadedImages.map((item, idx) => `
             <div class="preview-img">
-                <img src="${img}" alt="">
+                <img src="${item.previewUrl}" alt="">
+                ${item.status === 'uploading' ? '<div class="upload-status uploading">⏳ جاري الرفع...</div>' : ''}
+                ${item.status === 'error' ? '<div class="upload-status error">⚠️ فشل، احذفها وحاول</div>' : ''}
                 <button type="button" class="remove-img" onclick="removeImage(${idx})">✕</button>
             </div>
         `).join('');
@@ -2036,14 +2270,68 @@
         renderImagePreview();
     }
 
+    function handleVideoUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        uploadedVideo = {
+            previewUrl: URL.createObjectURL(file),
+            cloudUrl: null,
+            status: 'uploading'
+        };
+        renderVideoPreview();
+
+        uploadToCloudinary(file, 'video').then(url => {
+            uploadedVideo.cloudUrl = url;
+            uploadedVideo.status = 'done';
+            renderVideoPreview();
+        }).catch(err => {
+            uploadedVideo.status = 'error';
+            renderVideoPreview();
+            console.error(err);
+        });
+        event.target.value = '';
+    }
+
+    function renderVideoPreview() {
+        const preview = document.getElementById('videoPreview');
+        if (!uploadedVideo) {
+            preview.innerHTML = '';
+            return;
+        }
+        preview.innerHTML = `
+            <div class="preview-video">
+                <video src="${uploadedVideo.previewUrl}" controls muted></video>
+                ${uploadedVideo.status === 'uploading' ? '<div class="upload-status uploading">⏳ جاري رفع الفيديو...</div>' : ''}
+                ${uploadedVideo.status === 'error' ? '<div class="upload-status error">⚠️ فشل، احذفه وحاول</div>' : ''}
+                <button type="button" class="remove-img" onclick="removeVideo()">✕</button>
+            </div>
+        `;
+    }
+
+    function removeVideo() {
+        uploadedVideo = null;
+        renderVideoPreview();
+    }
+
     // الآن كتخزن السيارة مباشرة فـ Firestore Cloud بدل الذاكرة المؤقتة،
     // فتبقى محفوظة بشكل دائم حتى بعد حذف وإعادة تثبيت التطبيق.
     function addCar(event) {
         event.preventDefault();
 
+        const stillUploading = uploadedImages.some(i => i.status === 'uploading') ||
+            (uploadedVideo && uploadedVideo.status === 'uploading');
+        if (stillUploading) {
+            alert('من فضلك انتظر حتى ينتهي رفع الصور/الفيديو ثم اضغط نشر مرة أخرى.');
+            return;
+        }
+
         const submitBtn = document.getElementById('submitCarBtn');
         submitBtn.disabled = true;
         submitBtn.textContent = 'جاري النشر...';
+
+        const finalImages = uploadedImages.filter(i => i.status === 'done').map(i => i.cloudUrl);
+        const finalVideo = (uploadedVideo && uploadedVideo.status === 'done') ? uploadedVideo.cloudUrl : null;
 
         const newCar = {
             brand: document.getElementById('brand').value,
@@ -2059,14 +2347,22 @@
             phone: document.getElementById('phone').value,
             whatsapp: document.getElementById('whatsapp').value || document.getElementById('phone').value,
             description: document.getElementById('description').value,
-            images: uploadedImages.length > 0 ? uploadedImages : ['https://placehold.co/400x300?text=سيارة'],
+            images: finalImages.length > 0 ? finalImages : ['https://placehold.co/400x300?text=سيارة'],
+            video: finalVideo,
             approved: false,
             featured: false,
             featuredUntil: null,
             date: new Date().toLocaleDateString('ar-MA')
         };
 
-        carsCollection.add(newCar).then(() => {
+        function withTimeout(promise, ms) {
+            return Promise.race([
+                promise,
+                new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
+            ]);
+        }
+
+        withTimeout(carsCollection.add(newCar), 20000).then(() => {
             const userPhone = newCar.phone;
             const existingUser = users.find(u => u.phone === userPhone);
             if (!existingUser) {
@@ -2086,7 +2382,11 @@
             showSection('home');
         }).catch((error) => {
             console.error(error);
-            alert('حدث خطأ أثناء إضافة السيارة، تأكد من اتصالك بالإنترنت وحاول مرة أخرى.\n(إذا استمرت المشكلة، جرب صورة أصغر أو صورة واحدة فقط)');
+            if (error && error.message === 'timeout') {
+                alert('الاتصال بطيء بزاف أو الشبكة كتحجب الخدمة. تأكد من الواي فاي/الأنترنت وحاول مرة أخرى (السيارة ممكن تكون توصلات فالخلفية، تحقق من الرئيسية قبل ما تعاود).');
+            } else {
+                alert('حدث خطأ أثناء إضافة السيارة، تأكد من اتصالك بالإنترنت وحاول مرة أخرى.');
+            }
         }).finally(() => {
             submitBtn.disabled = false;
             submitBtn.textContent = 'نشر الإعلان';
@@ -2156,12 +2456,16 @@
     });
 
     let logoTapCount = 0;
-    let logoTapTimer = null;
+    let logoTapFirstTime = 0;
 
     document.getElementById('logoTrigger').addEventListener('click', function () {
+        const now = Date.now();
+        // إلا عدى 3 ثواني من أول دوسة، نبداو نعدو من جديد
+        if (now - logoTapFirstTime > 3000) {
+            logoTapCount = 0;
+            logoTapFirstTime = now;
+        }
         logoTapCount++;
-        if (logoTapTimer) clearTimeout(logoTapTimer);
-        logoTapTimer = setTimeout(() => { logoTapCount = 0; }, 2000);
         if (logoTapCount >= 7) {
             logoTapCount = 0;
             openAdminLogin();

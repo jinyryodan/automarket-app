@@ -1907,9 +1907,9 @@
 </footer>
 
 <!-- ==================== FIREBASE SDK (compat, no build tools needed) ==================== -->
-<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
 <script>
     // ==================== FIREBASE INIT ====================
@@ -1968,12 +1968,6 @@
             signInWithEmailAndPassword() { return Promise.reject(new Error('لا يوجد اتصال، تحقق من الأنترنت وأعد المحاولة')); },
             signOut() { return Promise.resolve(); }
         };
-        // كنبينو تنبيه واضح فوق الصفحة مباشرة (بدل ما يكتشف المستخدم المشكل
-        // غير ملي يحاول ينشر سيارة)، باش يعرف يعاود تحميل الصفحة أو يبدل الشبكة
-        const banner = document.createElement('div');
-        banner.style.cssText = 'position:sticky;top:0;z-index:9999;background:#EF4444;color:#fff;padding:10px 14px;text-align:center;font-size:14px;font-family:Tajawal,sans-serif;';
-        banner.innerHTML = '⚠️ تعذر الاتصال بقاعدة البيانات. السيارات ما غاديش تبان والنشر معطل. تحقق من الأنترنت وأعد تحميل الصفحة. <button onclick="location.reload()" style="margin-right:8px;background:#fff;color:#EF4444;border:none;padding:4px 10px;border-radius:4px;font-weight:bold;">إعادة تحميل</button>';
-        document.body.prepend(banner);
     }
 
 

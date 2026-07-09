@@ -1949,10 +1949,13 @@
         }
         firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
-        // بعض شبكات الهاتف/الواي فاي فالمغرب كتحجب نوع الاتصال (WebChannel) اللي
-        // Firestore كيستعمل بالإفتراضي، فهاد السطر كيجبر استعمال Long Polling
-        // اللي كيخدم على أي شبكة، حتى لو شوية أبطأ.
-        db.settings({ experimentalForceLongPolling: true, merge: true });
+        // ملحوظة: كنا كنستعملو experimentalForceLongPolling باش نحلو مشكل
+        // بعض شبكات الهاتف/الواي فاي فالمغرب اللي كتحجب WebChannel، لكن هاد
+        // الإعداد كيتعارض مع experimentalAutoDetectLongPolling (مفعّل
+        // بالإفتراضي فهاد النسخة من Firestore) وكيخلي Firebase كامل يفشل
+        // يتهيأ (وهذا كان السبب الحقيقي ديال "لا يوجد اتصال بقاعدة
+        // البيانات" لي كانت كتبان فكل الأجهزة والشبكات). كنخليو Firestore
+        // يكتشف تلقائياً أحسن طريقة اتصال بلا ما نجبروه.
         auth = firebase.auth();
         carsCollection = db.collection('cars');
         usersCollection = db.collection('users');

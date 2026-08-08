@@ -2178,11 +2178,26 @@ var Navbar = () => {
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState3(false);
   const [isNotifDropdownOpen, setIsNotifDropdownOpen] = useState3(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState3(false);
+  const [secretTapCount, setSecretTapCount] = useState3(0);
+  const [lastTapTime, setLastTapTime] = useState3(0);
   const unreadNotifCount = notifications.filter((n) => !n.isRead).length;
   const unreadChatCount = chatThreads.reduce((acc, t2) => acc + t2.unreadCount, 0);
   const handleLanguageSelect = (lang) => {
     setLanguage(lang);
     setIsLangDropdownOpen(false);
+  };
+  const handleLogoTap = () => {
+    const now = Date.now();
+    const withinWindow = now - lastTapTime < 1200;
+    const nextCount = withinWindow ? secretTapCount + 1 : 1;
+    setLastTapTime(now);
+    if (nextCount >= 7) {
+      setSecretTapCount(0);
+      setIsAdminPanelOpen(true);
+    } else {
+      setSecretTapCount(nextCount);
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
   return /* @__PURE__ */ jsxs("header", { className: "sticky top-0 z-40 bg-amber-500 dark:bg-slate-900 text-slate-900 dark:text-white shadow-md transition-colors", children: [
     /* @__PURE__ */ jsxs("div", { className: "bg-amber-600 dark:bg-slate-950 text-amber-950 dark:text-amber-300 text-xs py-1 px-4 font-medium flex justify-between items-center border-b border-amber-600/30", children: [
@@ -2242,7 +2257,7 @@ var Navbar = () => {
       ] })
     ] }),
     /* @__PURE__ */ jsxs("div", { className: "max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3", children: [
-      /* @__PURE__ */ jsx3("div", { className: "flex items-center gap-3", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 cursor-pointer", onClick: () => window.scrollTo({ top: 0, behavior: "smooth" }), children: [
+      /* @__PURE__ */ jsx3("div", { className: "flex items-center gap-3", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 cursor-pointer select-none", onClick: handleLogoTap, children: [
         /* @__PURE__ */ jsx3("div", { className: "w-10 h-10 rounded-xl bg-gradient-to-br from-slate-950 to-slate-800 text-orange-500 flex items-center justify-center font-black text-xl shadow-md border border-orange-500/40 transform hover:scale-105 transition-transform", children: /* @__PURE__ */ jsx3(Car, { className: "w-6 h-6 stroke-[2.5]" }) }),
         /* @__PURE__ */ jsxs("div", { children: [
           /* @__PURE__ */ jsxs("h1", { className: "text-xl font-black tracking-tight leading-none", children: [
